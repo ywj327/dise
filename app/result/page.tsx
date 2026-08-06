@@ -14,7 +14,7 @@ function CharacterImage({ name, className }: { name: string; className: string }
   if (failed) return null
   return (
     <img
-      src={`/characters/${name}.png`}
+      src={`/${name}.png`}
       alt={name}
       className={className}
       onError={() => setFailed(true)}
