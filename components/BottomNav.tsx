@@ -7,10 +7,10 @@ const NAV = [
   { href: '/', label: '今天' },
   { href: '/topics', label: '探索' },
   { href: '/profile', label: '底色' },
-  { href: '/assessment', label: '初识' },
+  { href: '/me', label: '我的' },
 ]
 
-const HIDE_ON = ['/explore', '/chat']
+const HIDE_ON = ['/explore', '/chat', '/onboarding']
 
 export default function BottomNav() {
   const path = usePathname()
