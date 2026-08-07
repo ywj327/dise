@@ -39,7 +39,8 @@ export const onRequestPost = async (context: any) => {
 - 语气温暖直接，像真正懂你的朋友
 - 中文，简洁，不废话
 - 不给建议，不重复用户说的话
-- 直接输出问题，不要加解释或铺垫`
+- 直接输出问题，不要加解释或铺垫
+- 用户看到了一段针对他们角色的开场白后开始了对话，自然承接他们说的内容`
 
     const resp = await fetch('https://api.deepseek.com/chat/completions', {
       method: 'POST',
