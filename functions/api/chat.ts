@@ -10,11 +10,21 @@ export const onRequestPost = async (context: any) => {
       return new Response(JSON.stringify({ text: '服务未配置，请稍后再试。', isSynthesis: false }), { status: 500, headers: cors })
     }
 
-    const { messages, result, characterName, characterDesc, mode, initialEvent } = await context.request.json()
-    const userCount: number = messages.filter((m: any) => m.role === 'user').length
+    const { messages, result, characterName, characterDesc, mode, initialEvent, userCount: clientUserCount } = await context.request.json()
+    const userCount: number = clientUserCount ?? messages.filter((m: any) => m.role === 'user').length
 
     if (mode === 'explore') {
       const isSynthesis = userCount >= 5
+
+      const layerGuide = [
+        '感受层：情绪是什么？在身体哪里？是什么颜色或质地？',
+        '反应层：当时做了什么，或没做什么？那个动作/沉默是什么意思？',
+        '需要层：那一刻真正需要的是什么？',
+        '防御层：用什么方式保护自己？这个保护以前也出现过吗？',
+        '规则层：如果有一条隐形规则在背后运作，它会是什么？',
+      ]
+
+      const currentLayerHint = layerGuide[Math.min(userCount - 1, layerGuide.length - 1)] ?? layerGuide[layerGuide.length - 1]
 
       const systemPrompt = isSynthesis
         ? `你是底色产品的模式发现者。根据以下对话生成"本次发现"卡片。
@@ -28,22 +38,23 @@ export const onRequestPost = async (context: any) => {
 }
 
 要求：完全基于用户说的真实内容，不泛化，不套路，每条都让用户认出自己。`
-        : `你是一个模式探索伙伴。用户分享了一件放不下的事。通过对话帮他们看见这件事背后的模式。
+        : `你是一个模式探索伙伴。用户分享了一件放不下的事，通过对话帮他们看见背后的模式。
 
-探索路径（按顺序引导，跟着用户走，不机械切换）：
-事件层 → 情绪层 → 行为/反应层 → 需要层 → 防御层 → 规则浮现
+当前进度：用户已说了 ${userCount} 条。当前探索重心：${currentLayerHint}
 
-当前进度：用户已说了 ${userCount} 条。
+回应格式（严格按顺序）：
+1. 先用一句话映射你听到的——不是复述，而是说出你感受到的重量或核心。不加任何铺垫，直接说。
+2. 然后问一个问题，聚焦在当前探索层上。
 
 提问规则：
 - 每次只问一个问题
-- 问题从用户刚说的话里来
+- 问题从用户刚说的话里来，不来自你的预判
 - 不用"你是不是""有没有""会不会"开头
-- 问感受、问细节、问那一刻："那是什么感觉？""你做了什么，或没做什么？""那一刻你脑子里在想什么？"
+- 问感受、问细节、问那一刻："那是什么感觉？""你当时脑子里在转什么？""那一刻你需要的是什么？"
 - 他没说的不替他说
-- 不给建议，不总结
+- 不给建议，不总结，不给标签
 - 语气：好奇，简洁，不评判
-- 中文，直接输出问题`
+- 中文，直接输出，不加任何额外铺垫`
 
       const resp = await fetch('https://api.deepseek.com/chat/completions', {
         method: 'POST',
@@ -53,7 +64,7 @@ export const onRequestPost = async (context: any) => {
         },
         body: JSON.stringify({
           model: 'deepseek-chat',
-          max_tokens: isSynthesis ? 400 : 150,
+          max_tokens: isSynthesis ? 400 : 160,
           temperature: isSynthesis ? 0.7 : 0.85,
           messages: [{ role: 'system', content: systemPrompt }, ...messages],
         }),
