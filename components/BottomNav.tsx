@@ -5,16 +5,15 @@ import { usePathname } from 'next/navigation'
 
 const NAV = [
   { href: '/', label: '今天' },
-  { href: '/explore', label: '探索', disabled: true },
+  { href: '/topics', label: '探索' },
   { href: '/profile', label: '底色' },
-  { href: '/me', label: '我的', disabled: true },
+  { href: '/assessment', label: '初识' },
 ]
 
-const HIDE_ON = ['/explore', '/assessment', '/chat', '/result']
+const HIDE_ON = ['/explore', '/chat']
 
 export default function BottomNav() {
   const path = usePathname()
-
   if (HIDE_ON.some(p => path?.startsWith(p))) return null
 
   return (
@@ -22,21 +21,11 @@ export default function BottomNav() {
       <div className="max-w-lg mx-auto flex items-center">
         {NAV.map(item => {
           const active = item.href === '/' ? path === '/' : path?.startsWith(item.href)
-          if (item.disabled) {
-            return (
-              <span
-                key={item.href}
-                className="flex-1 flex flex-col items-center py-3 text-neutral-300"
-              >
-                <span className="text-[11px] tracking-wide">{item.label}</span>
-              </span>
-            )
-          }
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex-1 flex flex-col items-center py-3 transition-colors ${
+              className={`flex-1 flex flex-col items-center py-3.5 transition-colors ${
                 active ? 'text-neutral-900' : 'text-neutral-400 hover:text-neutral-700'
               }`}
             >
