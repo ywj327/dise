@@ -1,7 +1,7 @@
 'use client'
 
 import { useSearchParams, useRouter } from 'next/navigation'
-import { useState, useRef, useEffect, Suspense } from 'react'
+import { useState, useRef, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface Message {
@@ -16,6 +16,22 @@ interface Discovery {
   rule: string
 }
 
+const LAYERS = ['感受', '反应', '需要', '防御', '规则']
+
+const ENTRY_CHIPS = [
+  { label: '说说当时的感受', message: '我想先说说当时是什么感觉' },
+  { label: '说说你当时的反应', message: '我想说说我当时做了什么，或者没做什么' },
+  { label: '说说为什么放不下', message: '我想搞清楚这件事为什么一直放不下' },
+]
+
+function layerIndex(userCount: number) {
+  if (userCount <= 1) return 0
+  if (userCount <= 2) return 1
+  if (userCount <= 3) return 2
+  if (userCount <= 4) return 3
+  return 4
+}
+
 function ExploreContent() {
   const params = useSearchParams()
   const router = useRouter()
@@ -27,44 +43,14 @@ function ExploreContent() {
   const [discovery, setDiscovery] = useState<Discovery | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  const hasSentInitial = useRef(false)
 
-  useEffect(() => {
-    if (!initialEvent || hasSentInitial.current) return
-    hasSentInitial.current = true
-    const firstMsg: Message = { role: 'user', content: initialEvent }
-    setMessages([firstMsg])
-
-    const doInitialCall = async () => {
-      setLoading(true)
-      try {
-        const res = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            messages: [{ role: 'user', content: initialEvent }],
-            mode: 'explore',
-            initialEvent,
-          }),
-        })
-        const data = await res.json()
-        setMessages(prev => [...prev, { role: 'assistant', content: data.text }])
-      } catch {
-        setMessages(prev => [...prev, { role: 'assistant', content: '连接失败，请稍后重试。' }])
-      }
-      setLoading(false)
-      setTimeout(() => {
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-        inputRef.current?.focus()
-      }, 100)
-    }
-
-    doInitialCall()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  const userCount = messages.filter(m => m.role === 'user').length
+  const showEntryChips = userCount === 0 && !loading
+  const currentLayer = layerIndex(userCount)
 
   async function callAPI(msgs: Message[]) {
     setLoading(true)
-    const userCount = msgs.filter(m => m.role === 'user').length
+    const count = msgs.filter(m => m.role === 'user').length
 
     try {
       const res = await fetch('/api/chat', {
@@ -74,6 +60,7 @@ function ExploreContent() {
           messages: msgs.map(m => ({ role: m.role, content: m.content })),
           mode: 'explore',
           initialEvent,
+          userCount: count,
         }),
       })
       const data = await res.json()
@@ -97,6 +84,7 @@ function ExploreContent() {
   async function send(text?: string) {
     const content = (text ?? input).trim()
     if (!content || loading || discovery) return
+
     const newMsgs: Message[] = [...messages, { role: 'user', content }]
     setMessages(newMsgs)
     setInput('')
@@ -111,18 +99,91 @@ function ExploreContent() {
 
   return (
     <main className="min-h-screen max-w-lg mx-auto px-5 flex flex-col bg-white">
+      {/* 顶部 */}
       <div className="py-7 flex items-center justify-between flex-shrink-0">
-        <p className="text-xs text-neutral-400 tracking-wide">底色 · 探索</p>
         <button
           onClick={() => router.push('/')}
           className="text-xs text-neutral-300 hover:text-neutral-600 transition-colors"
         >
           ← 返回
         </button>
+
+        {/* 六层进度指示器 */}
+        {!discovery && userCount > 0 && (
+          <div className="flex items-center gap-1.5">
+            {LAYERS.map((layer, i) => (
+              <div key={i} className="flex items-center gap-1.5">
+                <div className={`flex flex-col items-center gap-0.5`}>
+                  <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-500 ${
+                    i < currentLayer ? 'bg-neutral-400' :
+                    i === currentLayer ? 'bg-neutral-900' : 'bg-neutral-200'
+                  }`} />
+                  <span className={`text-[8px] transition-colors duration-500 ${
+                    i === currentLayer ? 'text-neutral-600' : 'text-neutral-300'
+                  }`}>{layer}</span>
+                </div>
+                {i < LAYERS.length - 1 && (
+                  <div className={`w-3 h-px mb-2.5 transition-colors duration-500 ${
+                    i < currentLayer ? 'bg-neutral-300' : 'bg-neutral-100'
+                  }`} />
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        <p className="text-xs text-neutral-300 w-10 text-right">底色</p>
       </div>
 
+      {/* 内容区 */}
       <div className="flex-1 pb-40">
         <div className="flex flex-col gap-6">
+
+          {/* 用户事件 */}
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="flex justify-end"
+          >
+            <p className="text-sm text-neutral-800 bg-neutral-100 rounded-2xl rounded-tr-md px-4 py-3 leading-relaxed max-w-[85%]">
+              {initialEvent}
+            </p>
+          </motion.div>
+
+          {/* 静态开场语（不调 API） */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <p className="text-sm text-neutral-500 leading-relaxed">先停在这里一秒。</p>
+          </motion.div>
+
+          {/* 入口选择（未发送消息前显示） */}
+          <AnimatePresence>
+            {showEntryChips && (
+              <motion.div
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.3, delay: 0.6 }}
+                className="flex flex-col gap-2"
+              >
+                {ENTRY_CHIPS.map((chip, i) => (
+                  <button
+                    key={i}
+                    onClick={() => send(chip.message)}
+                    className="text-left text-sm text-neutral-600 border border-neutral-200 rounded-2xl px-4 py-3 hover:border-neutral-500 hover:text-neutral-900 transition-colors leading-relaxed"
+                  >
+                    {chip.label}
+                  </button>
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* 对话消息 */}
           <AnimatePresence initial={false}>
             {messages.map((msg, i) => (
               <motion.div
@@ -135,7 +196,7 @@ function ExploreContent() {
                   <p className="text-sm text-neutral-600 leading-relaxed">{msg.content}</p>
                 ) : (
                   <div className="flex justify-end">
-                    <p className="text-sm text-neutral-800 bg-neutral-100 rounded-2xl rounded-tr-md px-4 py-3 leading-relaxed max-w-[82%]">
+                    <p className="text-sm text-neutral-800 bg-neutral-100 rounded-2xl rounded-tr-md px-4 py-3 leading-relaxed max-w-[85%]">
                       {msg.content}
                     </p>
                   </div>
@@ -158,6 +219,7 @@ function ExploreContent() {
             </motion.div>
           )}
 
+          {/* 本次发现卡片 */}
           {discovery && (
             <motion.div
               initial={{ opacity: 0, y: 12 }}
@@ -216,6 +278,7 @@ function ExploreContent() {
         </div>
       </div>
 
+      {/* 输入框 */}
       {!discovery && (
         <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm pb-6 pt-3">
           <div className="max-w-lg mx-auto px-5">
@@ -226,7 +289,7 @@ function ExploreContent() {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && send()}
-                placeholder="说说你的想法……"
+                placeholder={showEntryChips ? '或者直接说……' : '说说你的想法……'}
                 disabled={loading}
                 className="flex-1 text-sm outline-none bg-transparent placeholder-neutral-300 text-neutral-800"
               />
