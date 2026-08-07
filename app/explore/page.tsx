@@ -108,15 +108,15 @@ function QuestionStep({ step, lastChoice, onSelect, onCustom }: {
       className="flex flex-col gap-4"
     >
       {lastChoice && (
-        <p className="text-xs text-neutral-400 italic mb-1">「{lastChoice}」</p>
+        <p className="text-xs text-neutral-400 italic mb-4">「{lastChoice}」</p>
       )}
 
       {step.reflection && (
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.1, duration: 0.6 }}
-          className="text-sm text-neutral-500 leading-relaxed"
+          transition={{ delay: 0.1, duration: 0.7 }}
+          className="text-base font-light text-neutral-900 leading-loose mb-6"
         >
           {step.reflection}
         </motion.p>
@@ -125,8 +125,8 @@ function QuestionStep({ step, lastChoice, onSelect, onCustom }: {
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
-        className="text-sm text-neutral-700 leading-relaxed"
+        transition={{ delay: step.reflection ? 0.5 : 0.1, duration: 0.5 }}
+        className="text-xs text-neutral-500 leading-relaxed"
       >
         {step.question}
       </motion.p>
@@ -455,12 +455,10 @@ function ExploreContent() {
         <span className="text-[10px] text-neutral-300 tracking-widest">底色</span>
       </div>
 
-      {/* User's event bubble */}
-      <div className="flex justify-end mb-8">
-        <p className="text-sm text-neutral-800 bg-neutral-100 px-4 py-3 leading-relaxed max-w-[88%]">
-          {event}
-        </p>
-      </div>
+      {/* Light context reference */}
+      <p className="text-[10px] text-neutral-400 leading-relaxed mb-8">
+        你刚刚提到 「{event.length > 50 ? event.slice(0, 50) + '…' : event}」
+      </p>
 
       <AnimatePresence mode="wait">
 
