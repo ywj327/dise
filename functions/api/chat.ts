@@ -10,8 +10,75 @@ export const onRequestPost = async (context: any) => {
       return new Response(JSON.stringify({ text: '服务未配置，请稍后再试。', isSynthesis: false }), { status: 500, headers: cors })
     }
 
-    const { messages, result, characterName, characterDesc } = await context.request.json()
+    const { messages, result, characterName, characterDesc, mode, initialEvent } = await context.request.json()
     const userCount: number = messages.filter((m: any) => m.role === 'user').length
+
+    if (mode === 'explore') {
+      const isSynthesis = userCount >= 5
+
+      const systemPrompt = isSynthesis
+        ? `你是底色产品的模式发现者。根据以下对话生成"本次发现"卡片。
+
+只返回 JSON，不加任何其他内容：
+{
+  "experiencing": "用第二人称，20字以内，描述用户正在经历的表层状态",
+  "protection": "20字以内，描述他如何保护自己或防御",
+  "afraid": "20字以内，描述他可能真正害怕的或深层需要",
+  "rule": "一句话，写出那条隐形规则，用「」括起来，如：「做完了才算值得」"
+}
+
+要求：完全基于用户说的真实内容，不泛化，不套路，每条都让用户认出自己。`
+        : `你是一个模式探索伙伴。用户分享了一件放不下的事。通过对话帮他们看见这件事背后的模式。
+
+探索路径（按顺序引导，跟着用户走，不机械切换）：
+事件层 → 情绪层 → 行为/反应层 → 需要层 → 防御层 → 规则浮现
+
+当前进度：用户已说了 ${userCount} 条。
+
+提问规则：
+- 每次只问一个问题
+- 问题从用户刚说的话里来
+- 不用"你是不是""有没有""会不会"开头
+- 问感受、问细节、问那一刻："那是什么感觉？""你做了什么，或没做什么？""那一刻你脑子里在想什么？"
+- 他没说的不替他说
+- 不给建议，不总结
+- 语气：好奇，简洁，不评判
+- 中文，直接输出问题`
+
+      const resp = await fetch('https://api.deepseek.com/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          max_tokens: isSynthesis ? 400 : 150,
+          temperature: isSynthesis ? 0.7 : 0.85,
+          messages: [{ role: 'system', content: systemPrompt }, ...messages],
+        }),
+      })
+
+      const data: any = await resp.json()
+      const text: string = data.choices?.[0]?.message?.content ?? '出了点问题，请重试。'
+
+      if (isSynthesis) {
+        try {
+          let jsonText = text.trim()
+          if (jsonText.startsWith('```')) {
+            jsonText = jsonText.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
+          }
+          const discoveryData = JSON.parse(jsonText)
+          return new Response(JSON.stringify({ text, isSynthesis: true, discoveryData }), { headers: cors })
+        } catch {
+          return new Response(JSON.stringify({ text, isSynthesis: false }), { headers: cors })
+        }
+      }
+
+      return new Response(JSON.stringify({ text, isSynthesis: false }), { headers: cors })
+    }
+
+    // 人格测评对话模式（原有逻辑）
     const isSynthesis = userCount >= 3
 
     const systemPrompt = isSynthesis
@@ -35,8 +102,7 @@ export const onRequestPost = async (context: any) => {
 - 每次只问一个问题
 - 问题来自用户刚说的话，不来自你对他们"类型"的预判
 - 不问引导性问题——不要用"你是不是……""有没有……""会不会……"开头
-- 问感受、问当时那一刻、问具体的细节：
-  "那是什么感觉？""那一刻你脑子里在想什么？""那对你来说意味着什么？"
+- 问感受、问当时那一刻、问具体的细节："那是什么感觉？""那一刻你脑子里在想什么？""那对你来说意味着什么？"
 - 不要帮用户填空——他们没说的东西不要替他们说出来
 - 不要引用类型标签，不要说"作为某某类型的人"
 - 不给建议，不总结，只是真的想听
@@ -73,4 +139,3 @@ export const onRequestOptions = async () =>
       'Access-Control-Allow-Headers': 'Content-Type',
     },
   })
-
