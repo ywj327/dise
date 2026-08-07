@@ -5,7 +5,7 @@ export const questions: Question[] = [
   {
     id: 1,
     quadrant: 1,
-    text: '和重要的人发生冲突后，你的第一反应通常是？',
+    text: '和一个很重要的人刚刚吵了架。\n消息停在最后一句，谁都没有再回复。\n\n这时候你更容易——',
     options: [
       { text: '需要先独处，消化之后再谈', type: '回避型' },
       { text: '希望尽快厘清，悬着比吵架更难受', type: '焦虑型' },
@@ -16,7 +16,7 @@ export const questions: Question[] = [
   {
     id: 2,
     quadrant: 1,
-    text: '有人突然减少了对你的联系，你会？',
+    text: '你平时比较在意的一个人，\n最近联系明显变少了。\n\n你会——',
     options: [
       { text: '觉得对方最近可能比较忙，没太在意', type: '安全型' },
       { text: '开始回想最近是不是说错或做错了什么', type: '焦虑型' },
@@ -27,7 +27,7 @@ export const questions: Question[] = [
   {
     id: 3,
     quadrant: 1,
-    text: '朋友问"你最近怎么样"，你通常怎么回答？',
+    text: '朋友突然问你：「你最近怎么样？」\n\n你更可能——',
     options: [
       { text: '"还好"，即使不完全是真的', type: '回避型' },
       { text: '正好有些事憋着，借机说了出来', type: '焦虑型' },
@@ -38,7 +38,7 @@ export const questions: Question[] = [
   {
     id: 4,
     quadrant: 1,
-    text: '在关系里，什么情况最容易让你不舒服？',
+    text: '在关系里，最让你不舒服的通常是——',
     options: [
       { text: '对方的情绪需要你持续承接', type: '回避型' },
       { text: '感觉关系温度在下降，但说不清原因', type: '焦虑型' },
@@ -51,7 +51,7 @@ export const questions: Question[] = [
   {
     id: 5,
     quadrant: 2,
-    text: '做一件事，做了很久但没有任何外部反馈，你会怎样？',
+    text: '你认真做了一件事很久。\n没有人评价，也没有任何反馈。\n\n你会——',
     options: [
       { text: '很难持续，没有回应的事做起来没劲', type: '认可驱动' },
       { text: '反而更专注，不被打扰地做自己的', type: '自主驱动' },
@@ -62,7 +62,7 @@ export const questions: Question[] = [
   {
     id: 6,
     quadrant: 2,
-    text: '什么情境下你觉得最有力量？',
+    text: '回想一下，哪种时刻让你感觉最有力量？',
     options: [
       { text: '做的事被人看见，得到了真实的认可', type: '认可驱动' },
       { text: '完全按自己判断做了一件事，不需要解释', type: '自主驱动' },
@@ -73,7 +73,7 @@ export const questions: Question[] = [
   {
     id: 7,
     quadrant: 2,
-    text: '被安排去做一件事，没有选择权，你的第一反应？',
+    text: '被安排了一个任务，\n没有选择余地，也没人问你愿不愿意。\n\n你的第一反应是——',
     options: [
       { text: '先想做完了有没有人能看到是我做的', type: '认可驱动' },
       { text: '明显提不起劲，哪怕这件事本身不差', type: '自主驱动' },
@@ -84,7 +84,7 @@ export const questions: Question[] = [
   {
     id: 8,
     quadrant: 2,
-    text: '什么时候你会觉得"这件事没意思"？',
+    text: '你会在什么情况下觉得\n「这件事没意思」？',
     options: [
       { text: '没有人在意结果', type: '认可驱动' },
       { text: '不是自己选的，被推着走', type: '自主驱动' },
@@ -97,7 +97,7 @@ export const questions: Question[] = [
   {
     id: 9,
     quadrant: 3,
-    text: '用一句话描述你现在的状态，最接近的是？',
+    text: '如果用一句话描述你现在的状态，\n最接近的是——',
     options: [
       { text: '知道现在不对，但还不知道往哪走', type: '方向未定型' },
       { text: '想做的事是有的，就是启动不了', type: '执行卡壳型' },
@@ -108,7 +108,7 @@ export const questions: Question[] = [
   {
     id: 10,
     quadrant: 3,
-    text: '说到"改变现状"，你现在最缺的是什么？',
+    text: '说到想改变现状，\n你现在感觉最缺的是——',
     options: [
       { text: '一个清晰的方向', type: '方向未定型' },
       { text: '迈出第一步的那个推力', type: '执行卡壳型' },
@@ -119,7 +119,7 @@ export const questions: Question[] = [
   {
     id: 11,
     quadrant: 3,
-    text: '你上一次感觉"状态对了"，是因为什么？',
+    text: '上一次感觉状态真的对了，\n是因为——',
     options: [
       { text: '脑子里某件关于自己的事，突然想清楚了', type: '方向未定型' },
       { text: '不知哪来的劲，动了，动完才发现没那么难', type: '执行卡壳型' },
@@ -132,7 +132,7 @@ export const questions: Question[] = [
   {
     id: 12,
     quadrant: 4,
-    text: '三年后，你对"过得不错"的判断，最核心的依据是？',
+    text: '三年后回头看，\n你会用什么来判断自己「过得还不错」？',
     options: [
       { text: '我掌握了几个现在还不具备的能力', type: '能力拓展型' },
       { text: '日常状态是对的，不再那么拧巴', type: '生活方式型' },
@@ -143,7 +143,7 @@ export const questions: Question[] = [
   {
     id: 13,
     quadrant: 4,
-    text: '开始一个新项目，你首先会想到的是？',
+    text: '开始做一件新的事，\n你通常首先想到的是——',
     options: [
       { text: '我能从这里学到什么', type: '能力拓展型' },
       { text: '这件事会不会打乱现在的节奏', type: '生活方式型' },
@@ -154,7 +154,7 @@ export const questions: Question[] = [
   {
     id: 14,
     quadrant: 4,
-    text: '你不做某件事，最常见的理由是？',
+    text: '你决定不做某件事，\n最常给自己的理由是——',
     options: [
       { text: '现在能力还不够', type: '能力拓展型' },
       { text: '做了会让生活失衡', type: '生活方式型' },
@@ -165,7 +165,7 @@ export const questions: Question[] = [
   {
     id: 15,
     quadrant: 4,
-    text: '在你理想的生活里，工作是什么位置？',
+    text: '在你理想中的生活里，\n工作应该处于什么位置？',
     options: [
       { text: '成长的主要场所，我希望在工作里持续突破', type: '能力拓展型' },
       { text: '重要但不是全部，不应该侵占生活其他部分', type: '生活方式型' },

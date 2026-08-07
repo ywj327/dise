@@ -120,13 +120,23 @@ function ReturningHome() {
           </button>
 
           <div className="mt-14 pt-8 border-t border-neutral-100">
-            <p className="text-xs text-neutral-400 mb-3">或者，看看今天适合探索什么——</p>
-            <Link
-              href="/topics"
-              className="text-sm text-neutral-500 hover:text-neutral-900 transition-colors"
-            >
-              浏览探索专题 →
-            </Link>
+            <p className="text-xs text-neutral-400 mb-5">或者，换一个开始方式——</p>
+            <div className="flex flex-col gap-3">
+              <Link
+                href="/assessment"
+                className="flex items-center justify-between border border-neutral-200 px-4 py-3.5 hover:border-neutral-700 hover:text-neutral-900 transition-colors group"
+              >
+                <span className="text-sm text-neutral-700 group-hover:text-neutral-900">测测我的底色</span>
+                <span className="text-[10px] text-neutral-400">5 分钟 · 底色原型 →</span>
+              </Link>
+              <Link
+                href="/topics"
+                className="flex items-center justify-between border border-neutral-200 px-4 py-3.5 hover:border-neutral-700 hover:text-neutral-900 transition-colors group"
+              >
+                <span className="text-sm text-neutral-700 group-hover:text-neutral-900">选一个最近的困惑</span>
+                <span className="text-[10px] text-neutral-400">浏览专题 →</span>
+              </Link>
+            </div>
           </div>
         </motion.div>
       </div>

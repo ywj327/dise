@@ -12,6 +12,14 @@ interface FirstReveal {
   ruleConfidence: 'confirmed' | 'unconfirmed'
 }
 
+interface AssessmentData {
+  source: string
+  date: string
+  character: string
+  q1: string
+  q2: string
+}
+
 interface ProfileData {
   discoveries: Array<{
     date: string
@@ -22,6 +30,7 @@ interface ProfileData {
   sensitiveAreas: string[]
   defensePatterns: string[]
   hiddenRules: string[]
+  assessment?: AssessmentData
 }
 
 const EMPTY: ProfileData = { discoveries: [], needs: [], sensitiveAreas: [], defensePatterns: [], hiddenRules: [] }
@@ -140,6 +149,36 @@ export default function ProfilePage() {
           </motion.div>
 
           <div className="h-px bg-neutral-100 mb-12" />
+
+          {/* 底色测试区块 */}
+          <motion.div initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="mb-12">
+            {!profile.assessment ? (
+              <div className="border border-dashed border-neutral-200 px-5 py-5">
+                <p className="text-xs text-neutral-600 mb-1">还缺一块拼图</p>
+                <p className="text-[10px] text-neutral-400 leading-relaxed mb-5">
+                  完成一次底色测试，快速找到你的底色原型。
+                </p>
+                <Link
+                  href="/assessment"
+                  className="inline-block text-[10px] text-neutral-900 tracking-widest border border-neutral-900 px-4 py-2 hover:bg-neutral-900 hover:text-white transition-colors"
+                >
+                  去测试 →
+                </Link>
+              </div>
+            ) : (
+              <div>
+                <p className="text-[10px] text-neutral-400 tracking-widest mb-3">来自底色测试</p>
+                <p className="text-sm text-neutral-700 mb-1">{profile.assessment.character}</p>
+                <p className="text-[10px] text-neutral-300 mb-3">上次测试：{fmt(profile.assessment.date)}</p>
+                <Link
+                  href="/assessment"
+                  className="text-[10px] text-neutral-400 hover:text-neutral-700 underline underline-offset-4 transition-colors"
+                >
+                  重新测一次 →
+                </Link>
+              </div>
+            )}
+          </motion.div>
 
           {/* 探索发现：只有有探索记录才显示 */}
           {hasExplorations && (
@@ -265,12 +304,6 @@ export default function ProfilePage() {
             <Link href="/topics" className="block w-full border border-neutral-200 text-neutral-500 text-xs tracking-widest py-4 text-center hover:border-neutral-700 hover:text-neutral-800 transition-colors">
               浏览探索专题
             </Link>
-            <div className="pt-6 border-t border-neutral-100 mt-3 text-center">
-              <p className="text-[10px] text-neutral-400 mb-2">想再确认一次自己的底色？</p>
-              <Link href="/assessment" className="text-xs text-neutral-400 hover:text-neutral-700 transition-colors underline underline-offset-4">
-                重新进行底色测试 →
-              </Link>
-            </div>
           </motion.div>
 
         </div>

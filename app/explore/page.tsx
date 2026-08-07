@@ -455,10 +455,12 @@ function ExploreContent() {
         <span className="text-[10px] text-neutral-300 tracking-widest">底色</span>
       </div>
 
-      {/* Light context reference */}
-      <p className="text-[10px] text-neutral-400 leading-relaxed mb-8">
-        你刚刚提到 「{event.length > 50 ? event.slice(0, 50) + '…' : event}」
-      </p>
+      {/* Light context reference — only on first turn */}
+      {history.length === 0 && (
+        <p className="text-[10px] text-neutral-400 leading-relaxed mb-8">
+          你刚刚提到 「{event.length > 50 ? event.slice(0, 50) + '…' : event}」
+        </p>
+      )}
 
       <AnimatePresence mode="wait">
 

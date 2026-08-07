@@ -73,7 +73,7 @@ export default function AssessmentPage() {
           ← 返回
         </button>
         <p className="text-[10px] text-neutral-300 tracking-widest">
-          底色测试 {current + 1} / {total}
+          {String(current + 1).padStart(2, '0')} · {String(total).padStart(2, '0')}
         </p>
       </div>
 
@@ -94,16 +94,8 @@ export default function AssessmentPage() {
           exit={{ opacity: 0, x: -16 }}
           transition={{ duration: 0.35 }}
         >
-          {/* Quadrant label */}
-          <p className="text-[10px] text-neutral-300 tracking-widest mb-8">
-            {q.quadrant === 1 && '你和别人之间'}
-            {q.quadrant === 2 && '你拿什么驱动自己'}
-            {q.quadrant === 3 && '你卡在哪里'}
-            {q.quadrant === 4 && '接下来想去哪里'}
-          </p>
-
           {/* Question */}
-          <p className="text-base font-light text-neutral-900 leading-loose mb-10">
+          <p className="text-base font-light text-neutral-900 leading-loose mb-10 whitespace-pre-line">
             {q.text}
           </p>
 
