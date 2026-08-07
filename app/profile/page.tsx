@@ -265,6 +265,12 @@ export default function ProfilePage() {
             <Link href="/topics" className="block w-full border border-neutral-200 text-neutral-500 text-xs tracking-widest py-4 text-center hover:border-neutral-700 hover:text-neutral-800 transition-colors">
               浏览探索专题
             </Link>
+            <div className="pt-6 border-t border-neutral-100 mt-3 text-center">
+              <p className="text-[10px] text-neutral-400 mb-2">想再确认一次自己的底色？</p>
+              <Link href="/assessment" className="text-xs text-neutral-400 hover:text-neutral-700 transition-colors underline underline-offset-4">
+                重新进行底色测试 →
+              </Link>
+            </div>
           </motion.div>
 
         </div>
