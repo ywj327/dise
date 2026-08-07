@@ -18,7 +18,7 @@ export default function BottomNav() {
   if (HIDE_ON.some(p => path?.startsWith(p))) return null
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-100 pb-safe">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-100">
       <div className="max-w-lg mx-auto flex items-center">
         {NAV.map(item => {
           const active = item.href === '/' ? path === '/' : path?.startsWith(item.href)
