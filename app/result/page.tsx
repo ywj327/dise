@@ -127,11 +127,27 @@ function ResultContent() {
           </div>
         </motion.div>
 
+        {/* 继续深入 */}
+        <motion.div
+          className="mb-16"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 1.0 }}
+        >
+          <Link
+            href={`/chat?q1=${result.q1}&q2=${result.q2}&q3=${result.q3}&q4=${result.q4}`}
+            className="block w-full border border-neutral-900 text-neutral-900 text-xs tracking-widest py-4 text-center hover:bg-neutral-900 hover:text-white transition-colors"
+          >
+            继续深入 →
+          </Link>
+          <p className="text-xs text-neutral-400 text-center mt-3">通过对话，探索你的底层模式</p>
+        </motion.div>
+
         {/* 分享卡片 */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.5 }}
+          transition={{ delay: 1.2, duration: 0.5 }}
         >
           <div className="border border-neutral-900 p-8 mb-8">
             <p className="text-xs text-neutral-400 mb-6">底色</p>
