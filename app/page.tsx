@@ -9,70 +9,80 @@ export default function Home() {
   const router = useRouter()
   const [event, setEvent] = useState('')
 
-  function handleInput(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    setEvent(e.target.value)
-    e.target.style.height = 'auto'
-    e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px'
-  }
-
   function startExplore() {
     if (!event.trim()) return
     router.push(`/explore?event=${encodeURIComponent(event.trim())}`)
   }
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-6">
-      <motion.div
-        className="max-w-lg w-full"
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
-      >
-        <p className="text-xs text-neutral-400 mb-16">底色</p>
+    <main className="min-h-screen flex flex-col px-6 pt-16 pb-28">
+      <div className="max-w-lg mx-auto w-full flex-1 flex flex-col">
 
-        <h1 className="text-[28px] leading-tight font-light text-neutral-900 mb-4">
-          每件放不下的事<br />背后都有一个模式
-        </h1>
+        <motion.p
+          className="text-[10px] text-neutral-400 tracking-widest mb-20"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
+        >
+          底色
+        </motion.p>
 
-        <p className="text-sm text-neutral-500 leading-relaxed mb-10">
-          说一件最近放不下的事<br />
-          我们来看看，是什么在运作
-        </p>
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.1 }}
+          className="mb-14"
+        >
+          <h1 className="text-2xl font-light text-neutral-900 leading-snug mb-5">
+            你很清楚<br />别人希望你成为什么样的人。
+          </h1>
+          <p className="text-sm text-neutral-400 leading-relaxed">
+            但你还记得，自己原本是什么样子吗？
+          </p>
+        </motion.div>
 
-        <div className="mb-4">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="flex-1"
+        >
+          <p className="text-xs text-neutral-400 mb-3">最近，哪件事让你有点放不下？</p>
+
           <textarea
             value={event}
-            onChange={handleInput}
+            onChange={e => setEvent(e.target.value)}
             onKeyDown={e => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault()
                 startExplore()
               }
             }}
-            placeholder="比如：和一个朋友的摩擦，一个一直拖着的决定，某段关系里说不清楚的感觉……"
-            rows={3}
-            className="w-full text-sm text-neutral-800 placeholder-neutral-300 border border-neutral-200 rounded-2xl px-4 py-3.5 outline-none focus:border-neutral-400 transition-colors resize-none leading-relaxed bg-white"
+            placeholder="可以是一段关系、一份工作、一次争吵，或者一种说不上来的感觉……"
+            rows={4}
+            className="w-full text-sm text-neutral-800 placeholder-neutral-300 bg-transparent border-0 border-b border-neutral-200 py-3 outline-none focus:border-neutral-600 transition-colors resize-none leading-relaxed"
           />
-        </div>
 
-        <button
-          onClick={startExplore}
-          disabled={!event.trim()}
-          className="w-full border border-neutral-900 text-neutral-900 text-sm tracking-widest py-4 hover:bg-neutral-900 hover:text-white transition-colors duration-300 disabled:opacity-30 disabled:cursor-not-allowed mb-12"
-        >
-          开始探索
-        </button>
-
-        <p className="text-xs text-neutral-300">
-          或者，先{' '}
-          <Link
-            href="/assessment"
-            className="text-neutral-400 hover:text-neutral-700 underline underline-offset-2 transition-colors"
+          <button
+            onClick={startExplore}
+            disabled={!event.trim()}
+            className="mt-6 w-full border border-neutral-900 text-neutral-900 text-xs tracking-widest py-4 hover:bg-neutral-900 hover:text-white transition-colors duration-300 disabled:opacity-20 disabled:cursor-not-allowed"
           >
-            了解你的底色类型
-          </Link>
-        </p>
-      </motion.div>
+            和底色聊聊
+          </button>
+
+          <div className="mt-14 pt-8 border-t border-neutral-100">
+            <p className="text-xs text-neutral-400 mb-3">不知道从哪里开始？</p>
+            <Link
+              href="/assessment"
+              className="text-sm text-neutral-500 hover:text-neutral-900 transition-colors"
+            >
+              花 5 分钟，先看看你的第一层底色 →
+            </Link>
+          </div>
+        </motion.div>
+
+      </div>
     </main>
   )
 }
