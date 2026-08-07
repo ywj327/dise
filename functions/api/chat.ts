@@ -13,7 +13,106 @@ export const onRequestPost = async (context: any) => {
     const body = await context.request.json()
     const { mode } = body
 
-    // ── 底色浮现 第一层 ──────────────────────────────────────────
+    // ── 动态探索（核心智能模式）──────────────────────────────────────────
+    if (mode === 'dynamic_explore') {
+      const { event, history = [], userProfile = null } = body
+      const turnCount = (history as any[]).filter((h: any) => h.role === 'user').length
+
+      const profileHint = userProfile && userProfile.caresAbout
+        ? `用户已有底色档案显示：在意「${userProfile.caresAbout}」，习惯通过「${userProfile.protection || '某种方式'}」保护自己。仅作参考，当前事件优先。`
+        : ''
+
+      const historyLines = (history as Array<{ role: string; content: string; stage: string }>)
+        .map(h => h.role === 'user' ? `[用户] ${h.content}` : `[AI] ${h.content}`)
+        .join('\n')
+
+      const systemPrompt = `你是底色——帮助用户认识自己内在模式的探索伙伴。
+${profileHint}
+
+# 绝对规则（违反即失败）：
+
+1. reflection 必须精确映射用户刚才说的具体内容，证明"我真的在听"，不超过30字。
+2. question 只问一件事，不超过25字。
+3. options 全部属于同一层级：
+   - 全是情绪（对这件事的感受）
+   - 或全是行为（做了什么）
+   - 或全是原因（为什么难受）
+   - 或全是领域（属于哪个生活领域）
+   禁止在同一组选项里混用情绪+行为+人格判断+价值观。
+4. 每个 option 必须与用户说的事件有直接语义关联，读完用户原文能解释为什么这个选项相关。
+5. 输入过于模糊（如"最近很烦""不知道""好烦"——信息不足以定位领域），isDomainCheck: true，给出4个领域选项。
+6. 禁止诊断语言。使用：好像/可能/有没有一种可能/我注意到/值得继续确认。
+7. 用户上一轮否认了某个方向，下一轮不重复。
+
+# 阶段推进（按顺序，不跳跃）：
+understand_event → locate_pain → behavior → pattern → need → rule
+
+# 当前对话状态：
+事件：${event}
+已经历轮次：${turnCount}
+
+历史：
+${historyLines || '（首次）'}
+
+# 输出规则：
+- 只返回合法JSON，不加任何其他字符
+- turnCount >= 5 且已到 need 或 rule 阶段：readyForSynthesis: true
+- readyForSynthesis: true 时，synthesisContext 从历史中提取用户的核心情绪/行为/需要/保护方式
+- isDomainCheck: true 时 options 是领域列表
+
+{
+  "reflection": "...",
+  "question": "...",
+  "options": ["...", "...", "..."],
+  "stage": "understand_event|locate_pain|behavior|pattern|need|rule",
+  "isDomainCheck": false,
+  "insightCandidate": null,
+  "readyForSynthesis": false,
+  "synthesisContext": {
+    "emotion": "",
+    "behavior": "",
+    "need": "",
+    "defense": ""
+  }
+}`
+
+      const resp = await fetch('https://api.deepseek.com/chat/completions', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'deepseek-chat',
+          max_tokens: 600,
+          temperature: 0.75,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: '请根据当前对话状态生成下一步探索。' },
+          ],
+        }),
+      })
+      const data: any = await resp.json()
+      const raw: string = data.choices?.[0]?.message?.content ?? ''
+
+      try {
+        let jsonText = raw.trim()
+        if (jsonText.startsWith('```')) {
+          jsonText = jsonText.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '')
+        }
+        return new Response(JSON.stringify(JSON.parse(jsonText)), { headers: cors })
+      } catch {
+        return new Response(JSON.stringify({
+          reflection: '我在听。',
+          question: '这件事，最让你放不下的是哪里？',
+          options: ['一种说不清的难受', '对关系或事情走向的担心', '对自己的某种怀疑', '失去了掌控感'],
+          stage: 'locate_pain',
+          isDomainCheck: false,
+          insightCandidate: null,
+          readyForSynthesis: false,
+          synthesisContext: { emotion: '', behavior: '', need: '', defense: '' },
+        }), { headers: cors })
+      }
+    }
+
+    // ── 浮现 第一层 ──────────────────────────────────────────────────────
     if (mode === 'emergence') {
       const { event, emotion, behavior } = body
       const systemPrompt = `你是一个观察者，不是顾问。
@@ -45,17 +144,17 @@ export const onRequestPost = async (context: any) => {
       return new Response(JSON.stringify({ text }), { headers: cors })
     }
 
-    // ── 本次发现 + 底色浮现 第二层 ──────────────────────────────────
+    // ── 本次发现 ─────────────────────────────────────────────────────────
     if (mode === 'discovery') {
       const { event, emotion, behavior, need, defense } = body
       const systemPrompt = `你是底色产品的模式发现者。用户完成了一次自我探索。
 
 探索数据：
 - 事件：${event}
-- 感受：${emotion}
-- 行为反应：${behavior}
-- 真正需要：${need}
-- 保护方式：${defense}
+- 感受/痛点：${emotion || '（未明确）'}
+- 行为反应：${behavior || '（未明确）'}
+- 真正需要：${need || '（未明确）'}
+- 保护方式：${defense || '（未明确）'}
 
 只返回 JSON，不加任何其他内容：
 {
@@ -93,23 +192,22 @@ export const onRequestPost = async (context: any) => {
         const { emergence2, ...discovery } = parsed
         return new Response(JSON.stringify({ emergence2, discovery }), { headers: cors })
       } catch {
-        // fallback
         return new Response(JSON.stringify({
           emergence2: '有没有一种可能，这不只是这件事本身的问题。它只是这次刚好让你注意到了，一直在那里的东西。',
           discovery: {
-            experiencing: `你正在经历来自「${emotion}」的压力，同时用「${behavior}」来应对它`,
-            pattern: `当${emotion}出现时，你倾向于${behavior}`,
-            protecting: `你可能在保护自己，不去面对「${need}」得不到满足的感受`,
-            rule: `「只有先${defense}，才能维持稳定」`,
-            helpedBefore: `这种方式曾经帮你避免了更多的冲突，让关系维持在一个可控的状态`,
-            costNow: `但它也让你习惯性地先压缩自己，再去顾及别人的需要`,
-            newQuestion: `下一次这种感觉出现时，可以先停一下：我真正需要的是什么？它值得被说出来吗？`,
+            experiencing: `你正在经历来自「${emotion || '这件事'}」的压力，同时用「${behavior || '某种方式'}」来应对`,
+            pattern: `当${emotion || '这种感受'}出现时，你倾向于${behavior || '某种反应'}`,
+            protecting: `你可能在保护自己，不去面对「${need || '某种需要'}」得不到满足的感受`,
+            rule: `「只有先${defense || '用某种方式保护自己'}，才能维持稳定」`,
+            helpedBefore: `这种方式曾经帮你避免了更多的冲突，让事情维持在一个可控的状态`,
+            costNow: `但它也让你习惯性地先压缩自己，再去顾及真正想要的`,
+            newQuestion: `下一次这种感觉出现时，可以先停一下：我真正需要的是什么？`,
           },
         }), { headers: cors })
       }
     }
 
-    // ── 结构化探索对话（原有 explore 模式）───────────────────────────
+    // ── 结构化探索对话 ────────────────────────────────────────────────────
     if (mode === 'explore') {
       const { messages, initialEvent, userCount: clientUserCount } = body
       const userCount: number = clientUserCount ?? messages.filter((m: any) => m.role === 'user').length
@@ -154,7 +252,7 @@ export const onRequestPost = async (context: any) => {
       return new Response(JSON.stringify({ text, isSynthesis: false }), { headers: cors })
     }
 
-    // ── 人格测评对话（chat 模式）────────────────────────────────────
+    // ── 人格测评对话 ─────────────────────────────────────────────────────
     const { messages, result, characterName, characterDesc } = body
     const userCount: number = messages.filter((m: any) => m.role === 'user').length
     const isSynthesis = userCount >= 3
