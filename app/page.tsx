@@ -3,9 +3,58 @@
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-export default function Home() {
+function FirstVisitHome() {
+  const router = useRouter()
+
+  return (
+    <main className="min-h-screen flex flex-col px-6 pt-16 pb-28">
+      <div className="max-w-lg mx-auto w-full flex-1 flex flex-col">
+        <motion.p
+          className="text-[10px] text-neutral-400 tracking-widest mb-20"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
+        >
+          底色
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.15 }}
+          className="mb-14"
+        >
+          <h1 className="text-2xl font-light text-neutral-900 leading-snug mb-5">
+            有些习惯，<br />你以为只是性格。
+          </h1>
+          <p className="text-sm text-neutral-400 leading-relaxed">
+            其实它们可能已经替你<br />做了很多年的决定。
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.5 }}
+        >
+          <button
+            onClick={() => router.push('/onboarding')}
+            className="w-full border border-neutral-900 text-neutral-900 text-xs tracking-widest py-4 hover:bg-neutral-900 hover:text-white transition-colors duration-300 mb-10"
+          >
+            看看我没意识到的自己
+          </button>
+          <p className="text-xs text-neutral-300 leading-relaxed">
+            不用讲故事。<br />先从几个生活瞬间开始。
+          </p>
+        </motion.div>
+      </div>
+    </main>
+  )
+}
+
+function ReturningHome() {
   const router = useRouter()
   const [event, setEvent] = useState('')
 
@@ -17,7 +66,6 @@ export default function Home() {
   return (
     <main className="min-h-screen flex flex-col px-6 pt-16 pb-28">
       <div className="max-w-lg mx-auto w-full flex-1 flex flex-col">
-
         <motion.p
           className="text-[10px] text-neutral-400 tracking-widest mb-20"
           initial={{ opacity: 0 }}
@@ -34,10 +82,10 @@ export default function Home() {
           className="mb-14"
         >
           <h1 className="text-2xl font-light text-neutral-900 leading-snug mb-5">
-            你很清楚<br />别人希望你成为什么样的人。
+            今天，<br />有什么放不下的？
           </h1>
           <p className="text-sm text-neutral-400 leading-relaxed">
-            但你还记得，自己原本是什么样子吗？
+            每件放不下的事背后，都有一个模式。
           </p>
         </motion.div>
 
@@ -72,17 +120,36 @@ export default function Home() {
           </button>
 
           <div className="mt-14 pt-8 border-t border-neutral-100">
-            <p className="text-xs text-neutral-400 mb-3">不知道从哪里开始？</p>
+            <p className="text-xs text-neutral-400 mb-3">或者，看看今天适合探索什么——</p>
             <Link
-              href="/assessment"
+              href="/topics"
               className="text-sm text-neutral-500 hover:text-neutral-900 transition-colors"
             >
-              花 5 分钟，先看看你的第一层底色 →
+              浏览探索专题 →
             </Link>
           </div>
         </motion.div>
-
       </div>
     </main>
   )
+}
+
+export default function Home() {
+  const [loading, setLoading] = useState(true)
+  const [onboarded, setOnboarded] = useState(false)
+
+  useEffect(() => {
+    setOnboarded(localStorage.getItem('dise_onboarded') === 'true')
+    setLoading(false)
+  }, [])
+
+  if (loading) {
+    return (
+      <main className="min-h-screen flex flex-col px-6 pt-16">
+        <p className="text-[10px] text-neutral-400 tracking-widest">底色</p>
+      </main>
+    )
+  }
+
+  return onboarded ? <ReturningHome /> : <FirstVisitHome />
 }
