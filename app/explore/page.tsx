@@ -392,7 +392,7 @@ function ExploreContent() {
   }
 
   useEffect(() => {
-    if (!event) { router.replace('/'); return }
+    if (!event) { router.replace('/topics'); return }
     fetchStep([])
   }, [])
 
@@ -443,7 +443,8 @@ function ExploreContent() {
       }
       localStorage.setItem('dise_profile', JSON.stringify(profile))
     } catch { }
-    router.push('/profile')
+    router.push('/base')
+
   }
 
   if (!event) return null
@@ -451,7 +452,7 @@ function ExploreContent() {
   return (
     <main className="min-h-screen max-w-lg mx-auto px-6 pb-32">
       <div ref={topRef} className="py-8 flex items-center justify-between">
-        <button onClick={() => router.push('/')} className="text-xs text-neutral-300 hover:text-neutral-600 transition-colors">← 返回</button>
+        <button onClick={() => router.push('/today')} className="text-xs text-neutral-300 hover:text-neutral-600 transition-colors">← 返回</button>
         <span className="text-[10px] text-neutral-300 tracking-widest">底色</span>
       </div>
 
@@ -517,7 +518,7 @@ function ExploreContent() {
 
         {phase === 'discovery' && discovery && (
           <motion.div key="discovery" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <DiscoveryCard discovery={discovery} onSave={handleSave} onRestart={() => router.push('/')} />
+            <DiscoveryCard discovery={discovery} onSave={handleSave} onRestart={() => router.push('/topics')} />
           </motion.div>
         )}
 
