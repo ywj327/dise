@@ -5,24 +5,15 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { typeDescriptions, getCharacter } from '@/lib/scoring'
 import { Result } from '@/types'
-import { Suspense, useState } from 'react'
+import { Suspense } from 'react'
 
 const quadrantOrder: (keyof Result)[] = ['q1', 'q2', 'q3', 'q4']
 
-function CharacterImage({ name, className }: { name: string; className: string }) {
-  const [failed, setFailed] = useState(false)
-  if (failed) return (
-    <div className={`${className} flex items-center justify-center bg-neutral-50 border border-neutral-100`}>
-      <span className="text-2xl font-light text-neutral-400">{name}</span>
-    </div>
-  )
+function CharacterImage({ name, large }: { name: string; large?: boolean }) {
   return (
-    <img
-      src={`/${name}.png`}
-      alt={name}
-      className={className}
-      onError={() => setFailed(true)}
-    />
+    <div className={`${large ? 'w-36 h-36' : 'w-16 h-16'} flex-shrink-0 flex items-center justify-center bg-neutral-50 border border-neutral-100`}>
+      <span className={`font-light text-neutral-500 ${large ? 'text-2xl' : 'text-base'}`}>{name}</span>
+    </div>
   )
 }
 
@@ -61,12 +52,7 @@ function ResultContent() {
           transition={{ duration: 0.6, delay: 0.1 }}
         >
           <div className="flex items-end gap-8 mb-8">
-            <div className="w-36 h-36 flex-shrink-0 flex items-center justify-center">
-              <CharacterImage
-                name={character.name}
-                className="w-full h-full object-contain"
-              />
-            </div>
+            <CharacterImage name={character.name} large />
             <div className="pb-1">
               <p className="text-xs text-neutral-400 mb-3">你是</p>
               <h1 className="text-5xl font-light text-neutral-900 tracking-tight">
@@ -140,12 +126,7 @@ function ResultContent() {
           <div className="border border-neutral-900 p-8 mb-8">
             <p className="text-xs text-neutral-400 mb-6">底色</p>
             <div className="flex items-center gap-5 mb-5">
-              <div className="w-16 h-16 flex-shrink-0">
-                <CharacterImage
-                  name={character.name}
-                  className="w-full h-full object-contain"
-                />
-              </div>
+              <CharacterImage name={character.name} />
               <div>
                 <p className="text-xs text-neutral-400 mb-1">我是</p>
                 <p className="text-2xl font-light text-neutral-900">{character.name}</p>
