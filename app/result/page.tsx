@@ -11,7 +11,11 @@ const quadrantOrder: (keyof Result)[] = ['q1', 'q2', 'q3', 'q4']
 
 function CharacterImage({ name, className }: { name: string; className: string }) {
   const [failed, setFailed] = useState(false)
-  if (failed) return null
+  if (failed) return (
+    <div className={`${className} flex items-center justify-center bg-neutral-50 border border-neutral-100`}>
+      <span className="text-2xl font-light text-neutral-400">{name}</span>
+    </div>
+  )
   return (
     <img
       src={`/${name}.png`}
@@ -167,10 +171,19 @@ function ResultContent() {
               复制链接
             </button>
             <Link
-              href="/"
+              href="/assessment"
               className="flex-1 border border-neutral-900 bg-neutral-900 text-white text-xs tracking-widest py-3 text-center hover:bg-white hover:text-neutral-900 transition-colors"
             >
               重新测试
+            </Link>
+          </div>
+
+          <div className="mt-4">
+            <Link
+              href="/base"
+              className="block w-full border border-neutral-300 text-neutral-600 text-xs tracking-widest py-3 text-center hover:border-neutral-700 hover:text-neutral-900 transition-colors"
+            >
+              查看我的底色档案 →
             </Link>
           </div>
 
