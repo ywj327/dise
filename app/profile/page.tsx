@@ -161,9 +161,9 @@ export default function ProfilePage() {
           >
             重测 →
           </Link>
-          {archetype && (
+          {profile.q1 && profile.q2 && (
             <Link
-              href={`/result?archetype=${encodeURIComponent(archetype)}`}
+              href={`/result?q1=${encodeURIComponent(profile.q1)}&q2=${encodeURIComponent(profile.q2)}&q3=${encodeURIComponent(profile.q3 || '')}&q4=${encodeURIComponent(profile.q4 || '')}`}
               className="text-[10px] text-neutral-500 border border-neutral-200 px-3 py-2 hover:border-neutral-700 hover:text-neutral-800 transition-colors"
             >
               查看底色原型 →
